@@ -62,6 +62,7 @@
     /* Typography */
     --font-sans: 'Helvetica Neue', Helvetica, Arial, 'Noto Sans JP', sans-serif;
     --font-heading: 'Staff X Wide', 'Helvetica Neue', sans-serif;
+    --font-mono: var(--font-kode-mono), 'Courier New', monospace;
 
     /* Transitions */
     --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);

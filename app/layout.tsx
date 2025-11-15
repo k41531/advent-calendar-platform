@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Kode_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { Header } from "@/components/header";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -19,6 +20,12 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const kodeMono = Kode_Mono({
+  variable: "--font-kode-mono",
+  display: "swap",
+  subsets: ["latin"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,13 +33,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className={`${geistSans.className} ${kodeMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
+          <Header />
           {children}
         </ThemeProvider>
       </body>
