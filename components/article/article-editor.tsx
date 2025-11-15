@@ -23,7 +23,7 @@ import {
   Link2,
   ImageIcon,
 } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 
 interface ArticleEditorProps {
   content?: string;
