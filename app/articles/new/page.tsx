@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/header";
 
 export default function NewArticlePage() {
   const [title, setTitle] = useState("");
@@ -50,6 +51,7 @@ export default function NewArticlePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <div className="container mx-auto py-8 px-4 max-w-7xl">
         {/* タイトルと操作ボタン */}
         <Card className="mb-6">
