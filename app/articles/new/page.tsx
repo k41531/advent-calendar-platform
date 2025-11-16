@@ -1,31 +1,51 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ArticleEditor } from "@/components/article/article-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/header";
+import { saveDraft, publishArticle } from "@/lib/actions/articles";
 
 export default function NewArticlePage() {
+  const searchParams = useSearchParams();
+  const date = searchParams.get("date");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [articleId, setArticleId] = useState<string | undefined>(undefined);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // ここにSupabaseへの保存処理を実装
-      console.log("Saving article:", { title, content });
+      // Get current year and month (December 2025)
+      const year = new Date().getFullYear();
+      const month = 12;
+      const day = date ? parseInt(date) : new Date().getDate();
+      const publishDate = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-      // 仮の保存処理
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await saveDraft({
+        title,
+        content,
+        publishDate,
+        articleId,
+      });
 
-      alert("記事を保存しました!");
+      if (result.success) {
+        // Save the article ID for future updates
+        if (result.data?.id) {
+          setArticleId(result.data.id);
+        }
+        alert("下書きを保存しました!");
+      } else {
+        alert(`下書きの保存に失敗しました: ${result.error}`);
+      }
     } catch (error) {
       console.error("Error saving article:", error);
-      alert("記事の保存に失敗しました");
+      alert("下書きの保存に失敗しました");
     } finally {
       setIsSaving(false);
     }
@@ -34,13 +54,24 @@ export default function NewArticlePage() {
   const handlePublish = async () => {
     setIsSaving(true);
     try {
-      // ここにSupabaseへの公開処理を実装
-      console.log("Publishing article:", { title, content });
+      // Get current year and month (December 2025)
+      const year = new Date().getFullYear();
+      const month = 12;
+      const day = date ? parseInt(date) : new Date().getDate();
+      const publishDate = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-      // 仮の公開処理
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await publishArticle({
+        title,
+        content,
+        publishDate,
+        articleId,
+      });
 
-      alert("記事を公開しました!");
+      if (result.success) {
+        alert("記事を公開しました!");
+      } else {
+        alert(`記事の公開に失敗しました: ${result.error}`);
+      }
     } catch (error) {
       console.error("Error publishing article:", error);
       alert("記事の公開に失敗しました");
@@ -56,7 +87,9 @@ export default function NewArticlePage() {
         {/* タイトルと操作ボタン */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>新しい記事を書く</CardTitle>
+            <CardTitle>
+              {date ? `12月${date}日の記事を書く` : "新しい記事を書く"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
