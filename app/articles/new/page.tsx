@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/header";
-import { saveDraft, publishArticle, getDraftByDate } from "@/lib/actions/articles";
+import { saveDraft, publishArticle, getOwnArticleForDate } from "@/lib/actions/articles";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
 
@@ -36,7 +36,7 @@ export default function NewArticlePage() {
         const day = parseInt(date);
         const publishDate = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-        const result = await getDraftByDate(publishDate);
+        const result = await getOwnArticleForDate(publishDate);
 
         if (result.success && result.data) {
           setArticleId(result.data.id);

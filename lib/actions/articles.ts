@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { ArticleInsert, ArticleUpdate } from "@/lib/types/database";
 
 /**
- * Get draft article for a specific date
+ * Get own article for a specific date
  */
-export async function getDraftByDate(publishDate: string) {
+export async function getOwnArticleForDate(publishDate: string) {
   const supabase = await createClient();
 
   try {
@@ -26,7 +26,6 @@ export async function getDraftByDate(publishDate: string) {
       .select("*")
       .eq("user_id", user.id)
       .eq("publish_date", publishDate)
-      .eq("status", "draft")
       .maybeSingle();
 
     if (error) {
