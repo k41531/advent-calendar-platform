@@ -24,62 +24,86 @@ export class CalendarFetcher {
 
     // Generate all dates for the month
     const daysInMonth = new Date(year, month, 0).getDate();
+    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+    const endDate = `${year}-${String(month).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
+
+    // Fetch all data in parallel with batch queries
+    const [declarationsResult, publishedArticlesResult, userDeclarationsResult, userArticlesResult] =
+      await Promise.all([
+        // Get all declarations for the month
+        supabase
+          .from("declarations")
+          .select("publish_date")
+          .gte("publish_date", startDate)
+          .lte("publish_date", endDate),
+
+        // Get all published articles for the month
+        supabase
+          .from("articles")
+          .select("publish_date")
+          .eq("status", "published")
+          .gte("publish_date", startDate)
+          .lte("publish_date", endDate),
+
+        // Get user's declarations (if logged in)
+        user
+          ? supabase
+              .from("declarations")
+              .select("publish_date")
+              .eq("user_id", user.id)
+              .gte("publish_date", startDate)
+              .lte("publish_date", endDate)
+          : Promise.resolve({ data: null }),
+
+        // Get user's articles (if logged in)
+        user
+          ? supabase
+              .from("articles")
+              .select("publish_date, status")
+              .eq("user_id", user.id)
+              .gte("publish_date", startDate)
+              .lte("publish_date", endDate)
+          : Promise.resolve({ data: null }),
+      ]);
+
+    // Build lookup maps for O(1) access
+    const declarationCountMap = new Map<string, number>();
+    declarationsResult.data?.forEach((declaration) => {
+      const count = declarationCountMap.get(declaration.publish_date) || 0;
+      declarationCountMap.set(declaration.publish_date, count + 1);
+    });
+
+    const publishedDatesSet = new Set(
+      publishedArticlesResult.data?.map((article) => article.publish_date) || []
+    );
+
+    const userDeclaredDatesSet = new Set(
+      userDeclarationsResult.data?.map((declaration) => declaration.publish_date) || []
+    );
+
+    const userArticlesMap = new Map<string, "draft" | "published">();
+    userArticlesResult.data?.forEach((article) => {
+      userArticlesMap.set(article.publish_date, article.status);
+    });
+
+    // Generate calendar data using the lookup maps
     const calendarData: CalendarCellData[] = [];
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-      // Get declaration count for this date
-      const { count: declarationCount } = await supabase
-        .from("declarations")
-        .select("*", { count: "exact", head: true })
-        .eq("publish_date", date);
+      const declarationCount = declarationCountMap.get(date) || 0;
+      const hasPublishedArticle = publishedDatesSet.has(date);
+      const isUserDeclared = userDeclaredDatesSet.has(date);
 
-      // Check if there are any published articles for this date
-      const { data: publishedArticles } = await supabase
-        .from("articles")
-        .select("id")
-        .eq("publish_date", date)
-        .eq("status", "published")
-        .limit(1);
-
-      const hasPublishedArticle = (publishedArticles?.length ?? 0) > 0;
-
-      // User-specific data (only if logged in)
-      let isUserDeclared = false;
-      let isUserDraft = false;
-      let isUserPublished = false;
-
-      if (user) {
-        // Check if user has declared for this date
-        const { data: userDeclaration } = await supabase
-          .from("declarations")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("publish_date", date)
-          .maybeSingle();
-
-        isUserDeclared = !!userDeclaration;
-
-        // Check user's article status for this date
-        const { data: userArticle } = await supabase
-          .from("articles")
-          .select("status")
-          .eq("user_id", user.id)
-          .eq("publish_date", date)
-          .maybeSingle();
-
-        if (userArticle) {
-          isUserDraft = userArticle.status === "draft";
-          isUserPublished = userArticle.status === "published";
-        }
-      }
-
+      const userArticleStatus = userArticlesMap.get(date);
+      const isUserDraft = userArticleStatus === "draft";
+      const isUserPublished = userArticleStatus === "published";
       const isUserArticleExists = isUserDraft || isUserPublished;
 
       calendarData.push({
         date,
-        declarationCount: declarationCount ?? 0,
+        declarationCount,
         hasPublishedArticle,
         isUserDeclared,
         isUserArticleExists,
