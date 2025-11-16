@@ -51,10 +51,12 @@ export default async function Home() {
               <CalendarCell
                 key={day}
                 day={day}
+                date={cellData.date}
                 isUserDraft={cellData.isUserDraft}
                 isUserPublished={cellData.isUserPublished}
                 hasPublishedArticle={cellData.hasPublishedArticle}
                 declarationCount={cellData.declarationCount}
+                isUserDeclared={cellData.isUserDeclared}
               />
             );
           })}
