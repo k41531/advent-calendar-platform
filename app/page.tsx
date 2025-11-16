@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { DeployButton } from "@/components/deploy-button";
 import { CalendarCell } from "@/components/calendar/calendar-cell";
 import { createClient } from "@/lib/supabase/server";
+import { CalendarFetcher } from "@/lib/fetchers/calendar";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -13,6 +14,9 @@ export default async function Home() {
   if (!user) {
     redirect("/auth/login");
   }
+
+  // Fetch calendar data
+  const calendarData = await CalendarFetcher.getCalendarData(2025, 12);
 
   return (
     <main className="min-h-screen flex">
@@ -41,9 +45,19 @@ export default async function Home() {
       {/* 右側: カレンダーグリッド */}
       <div className="w-2/3 flex items-center justify-center p-8 bg-muted/30">
         <div className="grid grid-cols-5 gap-4 w-full max-w-4xl">
-          {Array.from({ length: 25 }, (_, i) => i + 1).map((day) => (
-            <CalendarCell key={day} day={day} />
-          ))}
+          {calendarData.slice(0, 25).map((cellData, index) => {
+            const day = index + 1;
+            return (
+              <CalendarCell
+                key={day}
+                day={day}
+                isUserDraft={cellData.isUserDraft}
+                isUserPublished={cellData.isUserPublished}
+                hasPublishedArticle={cellData.hasPublishedArticle}
+                declarationCount={cellData.declarationCount}
+              />
+            );
+          })}
         </div>
       </div>
     </main>

@@ -5,19 +5,63 @@ import { useRouter } from "next/navigation";
 
 interface CalendarCellProps {
   day: number;
+  isUserDraft?: boolean;
+  isUserPublished?: boolean;
+  hasPublishedArticle?: boolean;
+  declarationCount?: number;
 }
 
-export function CalendarCell({ day }: CalendarCellProps) {
+export function CalendarCell({
+  day,
+  isUserDraft = false,
+  isUserPublished = false,
+  hasPublishedArticle = false,
+  declarationCount = 0,
+}: CalendarCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
 
+  // Determine border style based on user's status
+  const getBorderStyle = () => {
+    if (isUserPublished) {
+      return "border-2 border-solid border-green-500";
+    }
+    if (isUserDraft) {
+      return "border-2 border-dashed border-amber-500";
+    }
+    return "border-2 border-dotted border-primary";
+  };
+
+  // Determine background style
+  const getBackgroundStyle = () => {
+    if (isUserPublished) {
+      return "bg-green-50 dark:bg-green-950/20";
+    }
+    if (isUserDraft) {
+      return "bg-amber-50 dark:bg-amber-950/20";
+    }
+    return "bg-background";
+  };
+
   return (
     <div
-      className="aspect-square w-full flex items-start justify-start border-2 border-dotted border-primary bg-background rounded-lg cursor-pointer shadow-sm p-3 relative"
+      className={`aspect-square w-full flex flex-col items-start justify-start ${getBorderStyle()} ${getBackgroundStyle()} rounded-lg cursor-pointer shadow-sm p-3 relative`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <span className="font-[family-name:var(--font-kode-mono)] text-2xl">{day}</span>
+
+      {/* Status indicator */}
+      {(isUserDraft || isUserPublished) && (
+        <div className="absolute top-2 right-2">
+          {isUserPublished && (
+            <span className="text-xs text-green-600 dark:text-green-400">✓</span>
+          )}
+          {isUserDraft && (
+            <span className="text-xs text-amber-600 dark:text-amber-400">📝</span>
+          )}
+        </div>
+      )}
 
       {/* Reaction buttons */}
       <div
