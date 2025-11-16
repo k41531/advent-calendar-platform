@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface CalendarCellProps {
   day: number;
@@ -8,6 +9,7 @@ interface CalendarCellProps {
 
 export function CalendarCell({ day }: CalendarCellProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter();
 
   return (
     <div
@@ -39,7 +41,7 @@ export function CalendarCell({ day }: CalendarCellProps) {
           className="w-8 h-8 flex items-center justify-center bg-background rounded-full hover:bg-[radial-gradient(circle,hsl(var(--accent))_0%,hsl(var(--accent)/0.2)_50%,transparent_100%)] transition-all duration-200 shadow-sm relative overflow-hidden"
           onClick={(e) => {
             e.stopPropagation();
-            // TODO: Handle pen reaction
+            router.push(`/articles/new?date=${day}`);
           }}
           aria-label="Write"
         >
