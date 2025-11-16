@@ -4,6 +4,45 @@ import { createClient } from "@/lib/supabase/server";
 import { ArticleInsert, ArticleUpdate } from "@/lib/types/database";
 
 /**
+ * Get draft article for a specific date
+ */
+export async function getDraftByDate(publishDate: string) {
+  const supabase = await createClient();
+
+  try {
+    // Get current user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "認証が必要です" };
+    }
+
+    // Get draft article for this date
+    const { data: article, error } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("publish_date", publishDate)
+      .eq("status", "draft")
+      .maybeSingle();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: article };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "エラーが発生しました",
+    };
+  }
+}
+
+/**
  * Save article as draft
  */
 export async function saveDraft(data: {
