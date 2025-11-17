@@ -34,6 +34,7 @@ export default function CalendarDatePage() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Fetch articles for the date
   useEffect(() => {
@@ -49,13 +50,6 @@ export default function CalendarDatePage() {
           profiles: article.profiles[0] || { pen_name: '' }
         }));
         setArticles(mappedArticles as ArticleWithAuthor[]);
-
-        // Set selected article ID
-        if (articleIdParam && result.data.some((a) => a.id === articleIdParam)) {
-          setSelectedArticleId(articleIdParam);
-        } else if (result.data.length > 0) {
-          setSelectedArticleId(result.data[0].id);
-        }
       } else {
         setError(result.error || "記事の取得に失敗しました");
       }
@@ -64,12 +58,30 @@ export default function CalendarDatePage() {
     }
 
     fetchArticles();
-  }, [date, articleIdParam]);
+  }, [date]);
 
-  // Handle article selection
+  // Sync selected article with URL parameter
+  useEffect(() => {
+    if (articles.length > 0) {
+      if (articleIdParam && articles.some((a) => a.id === articleIdParam)) {
+        setSelectedArticleId(articleIdParam);
+      } else if (!selectedArticleId) {
+        setSelectedArticleId(articles[0].id);
+      }
+    }
+  }, [articles, articleIdParam]);
+
+  // Handle article selection with transition
   const handleArticleSelect = (articleId: string) => {
-    setSelectedArticleId(articleId);
-    router.push(`/calendar/${date}?article=${articleId}`, { scroll: false });
+    // Start fade out
+    setIsTransitioning(true);
+
+    // After fade out, update article and fade in
+    setTimeout(() => {
+      setSelectedArticleId(articleId);
+      router.push(`/calendar/${date}?article=${articleId}`, { scroll: false });
+      setIsTransitioning(false);
+    }, 150); // Half of the 300ms transition duration
   };
 
   // Get selected article
@@ -151,7 +163,15 @@ export default function CalendarDatePage() {
           onArticleSelect={handleArticleSelect}
           date={date}
         />
-        {selectedArticle && <ArticleViewer article={selectedArticle} />}
+        <div
+          className={`flex-1 transition-opacity duration-300 ease-in-out ${
+            isTransitioning ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          {selectedArticle && (
+            <ArticleViewer key={selectedArticle.id} article={selectedArticle} />
+          )}
+        </div>
       </div>
     </div>
   );
