@@ -30,7 +30,7 @@ export interface Article {
   user_id: string; // uuid (references profiles.id)
   publish_date: string; // date (YYYY-MM-DD)
   title: string;
-  content: TipTapContent; // TipTap JSON format
+  content: any; // HTML string from TipTap editor or TipTap JSON format
   status: ArticleStatus;
   created_at: string; // timestamptz
   updated_at: string; // timestamptz

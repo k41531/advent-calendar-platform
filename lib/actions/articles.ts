@@ -225,3 +225,81 @@ export async function publishArticle(data: {
     };
   }
 }
+
+/**
+ * Get all published articles for a specific date
+ */
+export async function getPublishedArticlesForDate(publishDate: string) {
+  const supabase = await createClient();
+
+  try {
+    const { data: articles, error } = await supabase
+      .from("articles")
+      .select(`
+        id,
+        user_id,
+        publish_date,
+        title,
+        content,
+        status,
+        created_at,
+        updated_at,
+        profiles!articles_user_id_fkey (
+          pen_name
+        )
+      `)
+      .eq("publish_date", publishDate)
+      .eq("status", "published")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: articles || [] };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "エラーが発生しました",
+    };
+  }
+}
+
+/**
+ * Get article by ID (with author information)
+ */
+export async function getArticleById(articleId: string) {
+  const supabase = await createClient();
+
+  try {
+    const { data: article, error } = await supabase
+      .from("articles")
+      .select(`
+        id,
+        user_id,
+        publish_date,
+        title,
+        content,
+        status,
+        created_at,
+        updated_at,
+        profiles!articles_user_id_fkey (
+          pen_name
+        )
+      `)
+      .eq("id", articleId)
+      .eq("status", "published")
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: article };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "エラーが発生しました",
+    };
+  }
+}

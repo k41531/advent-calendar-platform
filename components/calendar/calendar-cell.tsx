@@ -28,6 +28,13 @@ export function CalendarCell({
   const [currentDeclarationCount, setCurrentDeclarationCount] = useState(declarationCount);
   const router = useRouter();
 
+  // Handle cell click - navigate to article page if published articles exist
+  const handleCellClick = () => {
+    if (hasPublishedArticle) {
+      router.push(`/calendar/${date}`);
+    }
+  };
+
   // Handle declaration
   const handleDeclare = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -71,9 +78,10 @@ export function CalendarCell({
 
   return (
     <div
-      className={`aspect-square w-full flex flex-col items-start justify-start ${getBorderStyle()} ${getBackgroundStyle()} rounded-lg cursor-pointer shadow-sm p-3 relative`}
+      className={`aspect-square w-full flex flex-col items-start justify-start ${getBorderStyle()} ${getBackgroundStyle()} rounded-lg ${hasPublishedArticle ? "cursor-pointer" : "cursor-default"} shadow-sm p-3 relative`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCellClick}
     >
       <span className="font-[family-name:var(--font-kode-mono)] text-2xl">{day}</span>
 
