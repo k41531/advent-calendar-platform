@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Header } from "@/components/header";
 import { saveDraft, publishArticle, getOwnArticleForDate } from "@/lib/actions/articles";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
@@ -149,7 +148,6 @@ export default function NewArticlePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container mx-auto py-8 px-4 max-w-7xl">
           <div className="flex items-center justify-center h-64">
             <p className="text-muted-foreground">読み込み中...</p>
@@ -161,7 +159,6 @@ export default function NewArticlePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <div className="container mx-auto py-8 px-4 max-w-7xl">
         {/* タイトルと操作ボタン */}
         <Card className="mb-6">

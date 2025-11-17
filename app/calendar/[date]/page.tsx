@@ -132,29 +132,6 @@ export default function CalendarDatePage() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card px-[var(--spacing-xl)] py-[var(--spacing-lg)] flex items-center justify-between">
-        <button
-          onClick={() => router.push("/")}
-          className="flex items-center gap-[var(--spacing-sm)] text-muted-foreground hover:text-foreground transition-colors duration-[var(--transition-fast)]"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          <span className="font-medium">カレンダーに戻る</span>
-        </button>
-      </header>
-
       {/* Main Content: Sidebar + Article Viewer */}
       <div className="flex flex-1 overflow-hidden">
         <ArticleSidebar

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DeployButton } from "@/components/deploy-button";
 import { CalendarCell } from "@/components/calendar/calendar-cell";
@@ -43,19 +42,7 @@ export default async function Home() {
       </div>
 
       {/* 左側: 説明エリア */}
-      <div className="w-1/3 flex flex-col justify-between p-8">
-        {/* ロゴ - 上部 */}
-        <div className="text-left">
-          <h1 className="font-[family-name:var(--font-kode-mono)]">
-            <div className="text-sm tracking-[0.3em] font-medium">
-              Advent Calendar
-            </div>
-            <div className="text-4xl font-bold text-accent">
-              2025
-            </div>
-          </h1>
-        </div>
-
+      <div className="w-1/3 flex flex-col justify-center p-8">
         <div className="flex-1 flex items-center justify-center">
           <div className="max-w-xl w-full space-y-8">
             {/* Tips - 中央配置 */}

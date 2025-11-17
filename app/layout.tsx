@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Kode_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import Link from "next/link";
+import { Logo } from "@/components/logo";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -39,6 +41,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Link href="/" className="fixed top-8 left-8 z-50">
+            <Logo />
+          </Link>
           {children}
         </ThemeProvider>
       </body>

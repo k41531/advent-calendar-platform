@@ -28,7 +28,7 @@ export function ArticleSidebar({
   };
 
   return (
-    <div className="w-80 border-r border-border bg-muted/30 p-[var(--spacing-lg)] overflow-y-auto">
+    <div className="w-80 border-r border-border p-[var(--spacing-lg)] pt-32 pl-8 overflow-y-auto">
       <div className="mb-[var(--spacing-xl)]">
         <h2 className="text-lg font-bold text-foreground">
           {formatDate(date)}の記事

@@ -1,4 +1,5 @@
 import { ArticlePreview } from "./article-preview";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface ArticleViewerProps {
   article: {
@@ -28,17 +29,19 @@ export function ArticleViewer({ article }: ArticleViewerProps) {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-background">
-      <article className="max-w-3xl mx-auto px-[var(--spacing-2xl)] py-[var(--spacing-2xl)]">
-        {/* Article Header */}
-        <header className="mb-[var(--spacing-2xl)] border-b border-border pb-[var(--spacing-2xl)]">
-          <h1 className="text-4xl font-bold text-foreground mb-[var(--spacing-lg)]">
+    <div className="flex-1 overflow-y-auto bg-background p-8">
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader className="space-y-4">
+          {/* Article Title */}
+          <h1 className="text-3xl font-bold text-foreground">
             {article.title}
           </h1>
-          <div className="flex items-center gap-[var(--spacing-lg)] text-sm text-muted-foreground">
-            <div className="flex items-center gap-[var(--spacing-sm)]">
+
+          {/* Article Meta */}
+          <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -52,9 +55,9 @@ export function ArticleViewer({ article }: ArticleViewerProps) {
               </svg>
               <span className="font-medium text-foreground">{article.profiles.pen_name}</span>
             </div>
-            <div className="flex items-center gap-[var(--spacing-sm)]">
+            <div className="flex items-center gap-1.5">
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -69,22 +72,22 @@ export function ArticleViewer({ article }: ArticleViewerProps) {
               <span>{formatDate(article.publish_date)}</span>
             </div>
           </div>
-        </header>
+        </CardHeader>
 
-        {/* Article Content */}
-        <div className="max-w-none">
-          <ArticlePreview content={htmlContent} />
-        </div>
+        <CardContent className="space-y-6">
+          {/* Article Content */}
+          <div className="max-w-none">
+            <ArticlePreview content={htmlContent} />
+          </div>
 
-        {/* Article Footer */}
-        <footer className="mt-[var(--spacing-2xl)] pt-[var(--spacing-2xl)] border-t border-border">
-          <div className="flex items-center justify-between">
+          {/* Article Footer */}
+          <footer className="pt-6 border-t border-border">
             <p className="text-sm text-muted-foreground">
               投稿日時: {formatDate(article.created_at)}
             </p>
-          </div>
-        </footer>
-      </article>
+          </footer>
+        </CardContent>
+      </Card>
     </div>
   );
 }
