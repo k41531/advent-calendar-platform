@@ -4,6 +4,73 @@ import { createClient } from "@/lib/supabase/server";
 import { ArticleInsert, ArticleUpdate } from "@/lib/types/database";
 
 /**
+ * Upload image to Supabase Storage
+ */
+export async function uploadImage(formData: FormData) {
+  const supabase = await createClient();
+
+  try {
+    // Get current user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "認証が必要です" };
+    }
+
+    // Get the file from the form data
+    const file = formData.get("file") as File;
+
+    if (!file) {
+      return { success: false, error: "ファイルが見つかりません" };
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      return { success: false, error: "画像ファイルのみアップロード可能です" };
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return { success: false, error: "ファイルサイズは5MB以下にしてください" };
+    }
+
+    // Generate unique filename
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from("article-images")
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Upload error:", error);
+      return { success: false, error: "アップロードに失敗しました" };
+    }
+
+    // Get public URL
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("article-images").getPublicUrl(data.path);
+
+    return { success: true, url: publicUrl };
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "予期しないエラーが発生しました",
+    };
+  }
+}
+
+/**
  * Get own article for a specific date
  */
 export async function getOwnArticleForDate(publishDate: string) {

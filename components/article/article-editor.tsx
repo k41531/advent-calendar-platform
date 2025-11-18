@@ -22,8 +22,11 @@ import {
   UnderlineIcon,
   Link2,
   ImageIcon,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRef, useState } from "react";
+import { uploadImage as uploadImageAction } from "@/lib/actions/articles";
 
 interface ArticleEditorProps {
   content?: string;
@@ -36,6 +39,93 @@ export function ArticleEditor({
   onChange,
   placeholder = "記事の内容を書いてください...",
 }: ArticleEditorProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const compressImage = async (file: File): Promise<File> => {
+    // If file is already small enough, return as is
+    if (file.size <= 1024 * 1024) {
+      // 1MB
+      return file;
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions (max 1920px width)
+          const maxWidth = 1920;
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Convert to WebP with quality adjustment
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), {
+                  type: "image/webp",
+                });
+                resolve(compressedFile);
+              } else {
+                reject(new Error("画像の圧縮に失敗しました"));
+              }
+            },
+            "image/webp",
+            0.85 // Quality: 85%
+          );
+        };
+        img.onerror = () => reject(new Error("画像の読み込みに失敗しました"));
+      };
+      reader.onerror = () => reject(new Error("ファイルの読み込みに失敗しました"));
+    });
+  };
+
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      alert("画像ファイルのみアップロード可能です");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Compress image before uploading
+      const compressedFile = await compressImage(file);
+
+      const formData = new FormData();
+      formData.append("file", compressedFile);
+
+      const result = await uploadImageAction(formData);
+
+      if (!result.success || !result.url) {
+        throw new Error(result.error || "アップロードに失敗しました");
+      }
+
+      // Insert image at current cursor position
+      editor?.chain().focus().setImage({ src: result.url }).run();
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert(error instanceof Error ? error.message : "アップロードに失敗しました");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -70,6 +160,33 @@ export function ArticleEditor({
         class:
           "prose prose-sm max-w-none focus:outline-none min-h-[400px] p-4",
       },
+      handleDrop: (_view, event, _slice, moved) => {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+          const file = event.dataTransfer.files[0];
+          if (file.type.startsWith("image/")) {
+            event.preventDefault();
+            uploadImage(file);
+            return true;
+          }
+        }
+        return false;
+      },
+      handlePaste: (_view, event) => {
+        const items = event.clipboardData?.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.startsWith("image/")) {
+              const file = items[i].getAsFile();
+              if (file) {
+                event.preventDefault();
+                uploadImage(file);
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      },
     },
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
@@ -89,14 +206,27 @@ export function ArticleEditor({
   };
 
   const addImage = () => {
-    const url = window.prompt("画像の URL を入力してください");
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      uploadImage(file);
     }
+    // Reset input value to allow selecting the same file again
+    event.target.value = "";
   };
 
   return (
     <div className="border rounded-lg overflow-hidden">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
       <div className="bg-muted/50 border-b p-2 flex flex-wrap gap-1">
         <Button
           type="button"
@@ -215,8 +345,18 @@ export function ArticleEditor({
         >
           <Link2 className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={addImage}>
-          <ImageIcon className="h-4 w-4" />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={addImage}
+          disabled={isUploading}
+        >
+          {isUploading ? (
+            <Upload className="h-4 w-4 animate-pulse" />
+          ) : (
+            <ImageIcon className="h-4 w-4" />
+          )}
         </Button>
 
         <div className="w-px h-6 bg-border my-auto mx-1" />
