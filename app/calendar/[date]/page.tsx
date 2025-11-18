@@ -134,19 +134,21 @@ export default function CalendarDatePage() {
     <div className="h-screen flex flex-col bg-background">
       {/* Main Content: Sidebar + Article Viewer */}
       <div className="flex flex-1 overflow-hidden">
-        <ArticleSidebar
-          articles={articles}
-          selectedArticleId={selectedArticleId || ""}
-          onArticleSelect={handleArticleSelect}
-          date={date}
-        />
+        {articles.length > 1 && (
+          <ArticleSidebar
+        articles={articles}
+        selectedArticleId={selectedArticleId || ""}
+        onArticleSelect={handleArticleSelect}
+        date={date}
+          />
+        )}
         <div
           className={`flex-1 transition-opacity duration-300 ease-in-out ${
-            isTransitioning ? "opacity-0" : "opacity-100"
+        isTransitioning ? "opacity-0" : "opacity-100"
           }`}
         >
           {selectedArticle && (
-            <ArticleViewer key={selectedArticle.id} article={selectedArticle} />
+        <ArticleViewer key={selectedArticle.id} article={selectedArticle} />
           )}
         </div>
       </div>
