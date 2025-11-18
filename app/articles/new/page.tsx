@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContentFullScreen, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
+import { ArticlePreview } from "@/components/article/article-preview";
 import { saveDraft, publishArticle, getOwnArticleForDate } from "@/lib/actions/articles";
+import { createClient } from "@/lib/supabase/client";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
 
@@ -20,6 +24,30 @@ export default function NewArticlePage() {
   const [articleId, setArticleId] = useState<string | undefined>(undefined);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("unsaved");
   const [isLoading, setIsLoading] = useState(true);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [penName, setPenName] = useState<string>("");
+
+  // Load user profile on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("pen_name")
+          .eq("id", user.id)
+          .single();
+
+        if (profile) {
+          setPenName(profile.pen_name);
+        }
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   // Load existing draft on mount
   useEffect(() => {
@@ -145,6 +173,24 @@ export default function NewArticlePage() {
     }
   };
 
+  // Format date for preview
+  const formatDate = (dateStr: string) => {
+    const parsedDate = new Date(dateStr);
+    return parsedDate.toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Get publish date for preview
+  const getPublishDate = () => {
+    const year = new Date().getFullYear();
+    const month = 12;
+    const day = date ? parseInt(date) : new Date().getDate();
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -186,6 +232,13 @@ export default function NewArticlePage() {
             <div className="flex gap-4 justify-end">
               <Button
                 variant="outline"
+                onClick={() => setIsPreviewOpen(true)}
+                disabled={!title.trim() || !content.trim()}
+              >
+                プレビュー
+              </Button>
+              <Button
+                variant="outline"
                 onClick={handleSave}
                 disabled={isSaving || !title.trim()}
               >
@@ -201,38 +254,88 @@ export default function NewArticlePage() {
           </CardContent>
         </Card>
 
-        {/* エディターとプレビューを左右に配置 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* エディターエリア */}
-          <Card>
-            <CardHeader>
-              <CardTitle>編集</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ArticleEditor
-                content={content}
-                onChange={setContent}
-                placeholder="記事の内容を書いてください..."
-              />
-            </CardContent>
-          </Card>
+        {/* エディターエリア */}
+        <Card>
+          <CardHeader>
+            <CardTitle>編集</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ArticleEditor
+              content={content}
+              onChange={setContent}
+              placeholder="記事の内容を書いてください..."
+            />
+          </CardContent>
+        </Card>
 
-          {/* プレビューエリア */}
-          <Card>
-            <CardHeader>
-              <CardTitle>プレビュー</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h1 className="text-2xl font-bold mb-4">
-                {title || "タイトル未設定"}
-              </h1>
-              <div
-                className="prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: content || "<p>内容がありません</p>" }}
-              />
-            </CardContent>
-          </Card>
-        </div>
+        {/* プレビューダイアログ */}
+        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+          <DialogContentFullScreen>
+            <VisuallyHidden>
+              <DialogTitle>記事プレビュー</DialogTitle>
+            </VisuallyHidden>
+            <div className="flex-1 overflow-y-auto bg-background p-8">
+              <Card className="max-w-4xl mx-auto">
+                <CardHeader className="space-y-4">
+                  {/* Article Title */}
+                  <h1 className="text-3xl font-bold text-foreground">
+                    {title}
+                  </h1>
+
+                  {/* Article Meta */}
+                  <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                      <span className="font-medium text-foreground">{penName || "匿名"}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <span>{formatDate(getPublishDate())}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-6">
+                  {/* Article Content */}
+                  <div className="max-w-none">
+                    <ArticlePreview content={content} />
+                  </div>
+
+                  {/* Article Footer */}
+                  <footer className="pt-6 border-t border-border">
+                    <p className="text-sm text-muted-foreground">
+                      投稿日時: {formatDate(new Date().toISOString())}
+                    </p>
+                  </footer>
+                </CardContent>
+              </Card>
+            </div>
+          </DialogContentFullScreen>
+        </Dialog>
       </div>
     </div>
   );
