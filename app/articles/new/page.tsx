@@ -287,7 +287,6 @@ export default function NewArticlePage() {
             <ArticleEditor
               content={content}
               onChange={setContent}
-              placeholder="記事の内容を書いてください..."
             />
           </CardContent>
         </Card>

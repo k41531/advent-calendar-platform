@@ -1,6 +1,7 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
+import { BubbleMenu, FloatingMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
@@ -23,6 +24,7 @@ import {
   Link2,
   ImageIcon,
   Upload,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
@@ -31,15 +33,14 @@ import { uploadImage as uploadImageAction } from "@/lib/actions/articles";
 interface ArticleEditorProps {
   content?: string;
   onChange?: (content: string) => void;
-  placeholder?: string;
 }
 
 export function ArticleEditor({
   content = "",
   onChange,
-  placeholder = "記事の内容を書いてください...",
 }: ArticleEditorProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const compressImage = async (file: File): Promise<File> => {
@@ -138,9 +139,6 @@ export function ArticleEditor({
           keepAttributes: false,
         },
       }),
-      Placeholder.configure({
-        placeholder,
-      }),
       Underline,
       Link.configure({
         openOnClick: false,
@@ -227,7 +225,13 @@ export function ArticleEditor({
         onChange={handleFileSelect}
         className="hidden"
       />
-      <div className="bg-muted/50 border-b p-2 flex flex-wrap gap-1">
+
+      {/* Bubble Menu - appears on text selection */}
+      <BubbleMenu
+        editor={editor}
+        options={{ placement: 'top' }}
+        className="bg-background border border-border rounded-lg shadow-lg p-1 flex gap-1"
+      >
         <Button
           type="button"
           variant="ghost"
@@ -303,10 +307,124 @@ export function ArticleEditor({
         >
           <Heading3 className="h-4 w-4" />
         </Button>
+      </BubbleMenu>
 
-        <div className="w-px h-6 bg-border my-auto mx-1" />
-
+      {/* Floating Menu - appears at cursor position on empty lines */}
+      <FloatingMenu
+         className="floating-menu" editor={editor}
+      >
         <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
+          className="h-8 w-8 p-0 rounded-full hover:bg-muted -ml-12"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+
+        {isFloatingMenuOpen && (
+          <div className="bg-background border border-border rounded-lg shadow-lg p-1 flex gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleBold().run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("bold") ? "bg-muted" : ""}
+            >
+              <Bold className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleItalic().run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("italic") ? "bg-muted" : ""}
+            >
+              <Italic className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleUnderline().run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("underline") ? "bg-muted" : ""}
+            >
+              <UnderlineIcon className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleStrike().run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("strike") ? "bg-muted" : ""}
+            >
+              <Strikethrough className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleCode().run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("code") ? "bg-muted" : ""}
+            >
+              <Code className="h-4 w-4" />
+            </Button>
+
+            <div className="w-px h-6 bg-border my-auto mx-1" />
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleHeading({ level: 1 }).run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("heading", { level: 1 }) ? "bg-muted" : ""}
+            >
+              <Heading1 className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleHeading({ level: 2 }).run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("heading", { level: 2 }) ? "bg-muted" : ""}
+            >
+              <Heading2 className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                editor.chain().focus().toggleHeading({ level: 3 }).run();
+                setIsFloatingMenuOpen(false);
+              }}
+              className={editor.isActive("heading", { level: 3 }) ? "bg-muted" : ""}
+            >
+              <Heading3 className="h-4 w-4" />
+            </Button>
+             <Button
           type="button"
           variant="ghost"
           size="sm"
@@ -358,29 +476,9 @@ export function ArticleEditor({
             <ImageIcon className="h-4 w-4" />
           )}
         </Button>
-
-        <div className="w-px h-6 bg-border my-auto mx-1" />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-        >
-          <Undo className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-        >
-          <Redo className="h-4 w-4" />
-        </Button>
-      </div>
-
+          </div>
+        )}
+      </FloatingMenu>
       <EditorContent editor={editor} className="bg-background" />
     </div>
   );
