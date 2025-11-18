@@ -62,7 +62,7 @@ export function CalendarCell({
     if (isUserDraft) {
       return "border-2 border-dashed border-amber-500";
     }
-    return "border-2 border-dotted border-primary";
+    return "border-2 border-dashed border-primary";
   };
 
   // Determine background style

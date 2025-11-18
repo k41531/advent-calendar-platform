@@ -143,7 +143,7 @@ export default function CalendarDatePage() {
           />
         )}
         <div
-          className={`flex-1 transition-opacity duration-300 ease-in-out ${
+          className={`flex-1 overflow-y-auto transition-opacity duration-300 ease-in-out ${
         isTransitioning ? "opacity-0" : "opacity-100"
           }`}
         >
