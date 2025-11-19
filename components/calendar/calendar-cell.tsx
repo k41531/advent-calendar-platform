@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createDeclaration } from "@/lib/actions/declarations";
+import { getDateState, isToday } from "@/lib/date-utils";
+import { cn } from "@/lib/utils";
 
 interface CalendarCellProps {
   day: number;
@@ -27,6 +29,8 @@ export function CalendarCell({
   const [isDeclared, setIsDeclared] = useState(isUserDeclared);
   const [currentDeclarationCount, setCurrentDeclarationCount] = useState(declarationCount);
   const router = useRouter();
+  const isTodayDate = isToday(date);
+  const dateState = getDateState(date);
 
   // Handle cell click - navigate to article page if published articles exist
   const handleCellClick = () => {
@@ -55,22 +59,39 @@ export function CalendarCell({
   };
 
   // Determine border style based on user's status
+  // 優先順位: 公開 > 下書き > 宣言 > 今日 > 過去/未来
+  // ルール: 過去と今日は実線、未来は破線
   const getBorderStyle = () => {
+    const borderWidth = "border-2";
+    const borderStyle = dateState === "future" ? "border-dashed" : "border-solid";
+
     if (isUserPublished) {
-      return "border-2 border-solid border-green-500";
+      // 公開済み: オレンジ
+      return `${borderWidth} ${borderStyle} border-[hsl(var(--color-orange))]`;
     }
     if (isUserDraft) {
-      return "border-2 border-dashed border-amber-500";
+      // 下書き: ピンク
+      return `${borderWidth} ${borderStyle} border-[hsl(var(--color-pink))]`;
     }
-    return "border-2 border-dashed border-primary";
+    if (dateState === "today") {
+      // 今日: オレンジ実線（光るアニメーション付き）
+      return `${borderWidth} border-solid border-[hsl(var(--color-orange))]`;
+    }
+    if (dateState === "past") {
+      // 過去: プライマリ実線
+      return `${borderWidth} border-solid border-primary`;
+    }
+    if (dateState === "future") {
+      // 未来: タン破線
+      return `${borderWidth} border-dashed border-[hsl(var(--color-tan))]`;
+    }
+    return `${borderWidth} ${borderStyle} border-primary`;
   };
 
   // Determine background style
   const getBackgroundStyle = () => {
-    if (isUserPublished) {
-      return "bg-green-50 dark:bg-green-950/20";
-    }
-    if (isUserDraft) {
+    // 未来のみ amber-50 背景、それ以外は背景色
+    if (dateState === "future") {
       return "bg-amber-50 dark:bg-amber-950/20";
     }
     return "bg-background";
@@ -78,7 +99,16 @@ export function CalendarCell({
 
   return (
     <div
-      className={`aspect-square w-full flex flex-col items-start justify-start ${getBorderStyle()} ${getBackgroundStyle()} rounded-lg ${hasPublishedArticle ? "cursor-pointer" : "cursor-default"} shadow-sm p-3 relative`}
+      className={cn(
+        "aspect-square w-full flex flex-col items-start justify-start rounded-lg shadow-sm p-3 relative",
+        getBorderStyle(),
+        getBackgroundStyle(),
+        hasPublishedArticle ? "cursor-pointer" : "cursor-default",
+        // 今日のセルには光るアニメーション
+        isTodayDate && "animate-[glow_2s_ease-in-out_infinite]",
+        // 下書きには控えめな光るアニメーション
+        isUserDraft && !isTodayDate && "animate-[glow-subtle_3s_ease-in-out_infinite]"
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCellClick}
@@ -92,7 +122,7 @@ export function CalendarCell({
             <span className="text-xs">✋</span>
           )}
           {isUserPublished && (
-            <span className="text-xs text-green-600 dark:text-green-400">✓</span>
+            <span className="text-xs text-amber-600 dark:text-amber-400">✓</span>
           )}
           {isUserDraft && (
             <span className="text-xs text-amber-600 dark:text-amber-400">📝</span>
