@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArticleEditor } from "@/components/article/article-editor";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
 
-export default function NewArticlePage() {
+function NewArticleContent() {
   const searchParams = useSearchParams();
   const date = searchParams.get("date");
   const [title, setTitle] = useState("");
@@ -360,5 +360,21 @@ export default function NewArticlePage() {
         </Dialog>
       </div>
     </div>
+  );
+}
+
+export default function NewArticlePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto py-8 px-4 max-w-7xl">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground">読み込み中...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <NewArticleContent />
+    </Suspense>
   );
 }
