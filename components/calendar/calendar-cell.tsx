@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createDeclaration } from "@/lib/actions/declarations";
 import { getDateState, isToday } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
+import { DeclarationConfirmDialog } from "./declaration-confirm-dialog";
 
 interface CalendarCellProps {
   day: number;
@@ -28,6 +29,7 @@ export function CalendarCell({
   const [isHovered, setIsHovered] = useState(false);
   const [isDeclared, setIsDeclared] = useState(isUserDeclared);
   const [currentDeclarationCount, setCurrentDeclarationCount] = useState(declarationCount);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
   const isTodayDate = isToday(date);
   const dateState = getDateState(date);
@@ -39,22 +41,25 @@ export function CalendarCell({
     }
   };
 
-  // Handle declaration
-  const handleDeclare = async (e: React.MouseEvent) => {
+  // Handle declaration button click
+  const handleDeclare = (e: React.MouseEvent) => {
     e.stopPropagation();
 
     if (isDeclared) {
-      // Already declared - show info
-      alert("既にこの日に宣言済みです");
       return;
     }
 
+    setIsDialogOpen(true);
+  };
+
+  // Handle confirmation from dialog
+  const handleConfirmDeclaration = async () => {
     const result = await createDeclaration(date);
     if (result.success) {
       setIsDeclared(true);
       setCurrentDeclarationCount((prev) => prev + 1);
     } else {
-      alert(result.error || "宣言に失敗しました");
+      throw new Error(result.error || "宣言に失敗しました");
     }
   };
 
@@ -166,6 +171,14 @@ export function CalendarCell({
           <span className="text-lg relative z-10">🖋️</span>
         </button>
       </div>
+
+      {/* Declaration confirmation dialog */}
+      <DeclarationConfirmDialog
+        date={date}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onConfirm={handleConfirmDeclaration}
+      />
     </div>
   );
 }
