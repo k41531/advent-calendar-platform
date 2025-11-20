@@ -274,11 +274,10 @@ export default function NewArticlePage() {
           
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">タイトル</Label>
               <Input
                 id="title"
                 type="text"
-                placeholder="記事のタイトルを入力してください"
+                placeholder="記事のタイトル"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="text-xl font-semibold"

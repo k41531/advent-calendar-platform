@@ -318,7 +318,7 @@ export function ArticleEditor({
           variant="ghost"
           size="sm"
           onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
-          className="h-8 w-8 p-0 rounded-full hover:bg-muted -ml-12"
+          className="h-8 w-8 p-0 rounded-full bg-white hover:bg-muted -ml-16"
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -479,7 +479,7 @@ export function ArticleEditor({
           </div>
         )}
       </FloatingMenu>
-      <EditorContent editor={editor} className="bg-background" />
+      <EditorContent editor={editor} className="bg-white" />
     </div>
   );
 }
