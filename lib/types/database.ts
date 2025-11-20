@@ -13,11 +13,17 @@ export type ArticleStatus = 'draft' | 'published';
 export type ReactionType = 'like' | 'love' | 'clap' | 'fire';
 
 /**
+ * User role
+ */
+export type UserRole = 'user' | 'admin';
+
+/**
  * Profile table
  */
 export interface Profile {
   id: string; // uuid (references auth.users)
   pen_name: string;
+  role: UserRole;
   created_at: string; // timestamptz
   updated_at: string; // timestamptz
 }
