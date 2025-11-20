@@ -1,4 +1,4 @@
-const debug_today = "2025-12-14";
+// const debug_today = "2025-12-14";
 
 
 /**
@@ -8,7 +8,7 @@ const debug_today = "2025-12-14";
  */
 export function isToday(dateString: string): boolean {
   const target = new Date(dateString);
-  const today = new Date(debug_today);
+  const today = new Date();
 
   // 時刻を無視して日付のみで比較
   today.setHours(0, 0, 0, 0);
@@ -24,7 +24,7 @@ export function isToday(dateString: string): boolean {
  */
 export function getDateState(dateString: string): 'past' | 'today' | 'future' {
   const target = new Date(dateString);
-  const today = new Date(debug_today);
+  const today = new Date();
 
   // 時刻を無視して日付のみで比較
   today.setHours(0, 0, 0, 0);
