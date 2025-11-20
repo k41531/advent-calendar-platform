@@ -4,57 +4,99 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    /* Design Tokens - Inspired by haru-ni.net */
+
+    /* Color Palette */
+    --color-brown-dark: 25 66% 16%; /* #422612 */
+    --color-cream: 42 70% 84%; /* #f0e2bb */
+    --color-tan: 42 60% 68%; /* #e0c67b */
+    --color-orange: 38 100% 48%; /* #f4a000 */
+    --color-yellow: 51 87% 53%; /* #f1d81f */
+    --color-pink: 339 76% 78%; /* #f09dc1 */
+    --color-night: 223 48% 23%; /* #1a295c */
+    --color-recruit: 18 100% 91%; /* #ffd9cc */
+
+    /* Semantic Tokens */
+    --background: 42 70% 84%; /* cream */
+    --foreground: 25 66% 16%; /* dark brown */
+    --card: 0 0% 100%; /* white */
+    --card-foreground: 25 66% 16%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --popover-foreground: 25 66% 16%;
+    --primary: 25 66% 16%; /* dark brown */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 42 60% 68%; /* tan */
+    --secondary-foreground: 25 66% 16%;
+    --muted: 42 60% 68%;
+    --muted-foreground: 25 40% 35%;
+    --accent: 38 100% 48%; /* orange */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 25 30% 80%;
+    --input: 25 30% 80%;
+    --ring: 25 66% 16%;
+
+    /* Chart Colors */
+    --chart-1: 38 100% 48%; /* orange */
+    --chart-2: 51 87% 53%; /* yellow */
+    --chart-3: 339 76% 78%; /* pink */
+    --chart-4: 42 60% 68%; /* tan */
+    --chart-5: 25 66% 16%; /* dark brown */
+
+    /* Spacing & Layout */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem; /* 8px */
+    --spacing-md: 1rem; /* 16px */
+    --spacing-lg: 1.5rem; /* 24px */
+    --spacing-xl: 2rem; /* 32px */
+    --spacing-2xl: 2.5rem; /* 40px */
+
+    /* Border Radius */
     --radius: 0.5rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
+    /* Typography */
+    --font-sans: 'Helvetica Neue', Helvetica, Arial, 'Noto Sans JP', sans-serif;
+    --font-heading: 'Staff X Wide', 'Helvetica Neue', sans-serif;
+    --font-mono: var(--font-kode-mono), 'Courier New', monospace;
+
+    /* Transitions */
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slower: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    /* Night Mode - Inspired by haru-ni.net */
+    --background: 223 48% 23%; /* night blue */
+    --foreground: 0 0% 100%;
+    --card: 223 48% 18%;
+    --card-foreground: 0 0% 100%;
+    --popover: 223 48% 18%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 223 48% 23%;
+    --secondary: 223 30% 35%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 223 30% 35%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 38 100% 48%; /* orange */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 223 30% 35%;
+    --input: 223 30% 35%;
+    --ring: 0 0% 100%;
+    --chart-1: 38 100% 58%;
+    --chart-2: 51 87% 63%;
+    --chart-3: 339 76% 68%;
+    --chart-4: 42 60% 58%;
+    --chart-5: 0 0% 100%;
   }
 }
 
@@ -65,4 +107,90 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Custom Animations */
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 8px hsl(var(--accent) / 0.3),
+                  0 0 16px hsl(var(--accent) / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 16px hsl(var(--accent) / 0.5),
+                  0 0 24px hsl(var(--accent) / 0.3),
+                  0 0 32px hsl(var(--accent) / 0.2);
+    }
+  }
+
+  @keyframes glow-subtle {
+    0%, 100% {
+      box-shadow: 0 0 4px hsl(var(--color-pink) / 0.2),
+                  0 0 8px hsl(var(--color-pink) / 0.1);
+    }
+    50% {
+      box-shadow: 0 0 8px hsl(var(--color-pink) / 0.3),
+                  0 0 12px hsl(var(--color-pink) / 0.2);
+    }
+  }
+}
+
+/* Tiptap Editor Styles */
+.prose *{
+  outline: none;
+  @apply text-foreground;
+}
+
+.prose p.is-editor-empty:first-child::before {
+  color: hsl(var(--muted-foreground));
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.prose p {
+  @apply my-3;
+}
+
+.prose h1 {
+  @apply text-2xl font-bold mt-6 mb-3;
+}
+
+.prose h2 {
+  @apply text-xl font-bold mt-5 mb-2;
+}
+
+.prose h3 {
+  @apply text-lg font-bold mt-4 mb-2;
+}
+
+.prose ul {
+  @apply list-disc pl-6 my-3;
+}
+
+.prose ol {
+  @apply list-decimal pl-6 my-3;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-muted-foreground pl-4 italic my-3;
+}
+
+.prose code {
+  @apply bg-muted px-2 py-1 rounded text-sm font-mono;
+}
+
+.prose pre {
+  @apply bg-muted p-4 rounded-lg my-3 overflow-x-auto;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose a {
+  @apply text-blue-500 underline cursor-pointer;
+}
+
+.prose img {
+  @apply max-w-full h-auto rounded-lg my-3;
 }

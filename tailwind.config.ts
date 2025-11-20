@@ -11,6 +11,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Semantic colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -51,13 +52,43 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // Brand colors from haru-ni.net
+        brand: {
+          brown: "hsl(var(--color-brown-dark))",
+          cream: "hsl(var(--color-cream))",
+          tan: "hsl(var(--color-tan))",
+          orange: "hsl(var(--color-orange))",
+          yellow: "hsl(var(--color-yellow))",
+          pink: "hsl(var(--color-pink))",
+          night: "hsl(var(--color-night))",
+          recruit: "hsl(var(--color-recruit))",
+        },
+      },
+      spacing: {
+        xs: "var(--spacing-xs)",
+        sm: "var(--spacing-sm)",
+        md: "var(--spacing-md)",
+        lg: "var(--spacing-lg)",
+        xl: "var(--spacing-xl)",
+        "2xl": "var(--spacing-2xl)",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius-md)",
+        sm: "var(--radius-sm)",
+        xl: "var(--radius-xl)",
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)"],
+        heading: ["var(--font-heading)"],
+      },
+      transitionDuration: {
+        fast: "var(--transition-fast)",
+        base: "var(--transition-base)",
+        slow: "var(--transition-slow)",
+        slower: "var(--transition-slower)",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;
