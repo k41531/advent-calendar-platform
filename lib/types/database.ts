@@ -8,9 +8,9 @@
 export type ArticleStatus = 'draft' | 'published';
 
 /**
- * Reaction type
+ * Reaction type (emoji string)
  */
-export type ReactionType = 'like' | 'love' | 'clap' | 'fire';
+export type ReactionType = string;
 
 /**
  * User role

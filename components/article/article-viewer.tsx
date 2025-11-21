@@ -1,4 +1,5 @@
 import { ArticlePreview } from "./article-preview";
+import { ReactionPanel } from "./reaction-panel";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface ArticleViewerProps {
@@ -78,6 +79,11 @@ export function ArticleViewer({ article }: ArticleViewerProps) {
           {/* Article Content */}
           <div className="max-w-none">
             <ArticlePreview content={htmlContent} />
+          </div>
+
+          {/* Reactions */}
+          <div className="pt-4 border-t border-border">
+            <ReactionPanel articleId={article.id} />
           </div>
 
           {/* Article Footer */}
