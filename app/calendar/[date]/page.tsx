@@ -131,7 +131,7 @@ export default function CalendarDatePage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background pt-20 xl:pt-0">
       {/* Main Content: Sidebar + Article Viewer */}
       <div className="flex flex-1 overflow-hidden">
         {articles.length > 1 && (

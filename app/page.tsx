@@ -36,7 +36,7 @@ export default async function Home() {
   const randomTip = tips[Math.floor(Math.random() * tips.length)];
 
   return (
-    <main className="min-h-screen flex">
+    <main className="min-h-screen flex pt-20 xl:pt-0">
       <div className="absolute top-4 right-4 z-10">
         <LogoutButton />
       </div>

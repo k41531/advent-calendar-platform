@@ -44,7 +44,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Link href="/" className="fixed top-8 left-8 z-50">
+          <Link href="/" className="fixed top-4 left-4  z-50">
             <Logo />
           </Link>
           {children}
