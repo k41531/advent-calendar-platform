@@ -14,6 +14,7 @@ import { saveDraft, publishArticle, getOwnArticleForDate } from "@/lib/actions/a
 import { createClient } from "@/lib/supabase/client";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
+type ArticleStatus = "draft" | "published" | null;
 
 function NewArticleContent() {
   const searchParams = useSearchParams();
@@ -23,6 +24,7 @@ function NewArticleContent() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [articleId, setArticleId] = useState<string | undefined>(undefined);
+  const [articleStatus, setArticleStatus] = useState<ArticleStatus>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("unsaved");
   const [isLoading, setIsLoading] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -69,6 +71,7 @@ function NewArticleContent() {
         if (result.success && result.data) {
           setArticleId(result.data.id);
           setTitle(result.data.title);
+          setArticleStatus(result.data.status as ArticleStatus);
 
           // Extract text content from TipTap JSON
           if (result.data.content?.content?.[0]?.content?.[0]?.text) {
@@ -109,6 +112,7 @@ function NewArticleContent() {
         if (result.data?.id) {
           setArticleId(result.data.id);
         }
+        setArticleStatus("draft");
         setSaveStatus("saved");
         alert("下書きを保存しました!");
       } else {
@@ -141,6 +145,8 @@ function NewArticleContent() {
       });
 
       if (result.success) {
+        setArticleStatus("published");
+        setSaveStatus("saved");
         alert("記事を公開しました!");
       } else {
         alert(`記事の公開に失敗しました: ${result.error}`);
@@ -164,14 +170,66 @@ function NewArticleContent() {
   const getStatusDisplay = () => {
     switch (saveStatus) {
       case "saved":
-        return <span className="text-green-600 dark:text-green-400">✓ 保存済み</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <svg className="w-3.5 h-3.5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            保存済み
+          </span>
+        );
       case "saving":
-        return <span className="text-blue-600 dark:text-blue-400">保存中...</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <svg className="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            保存中...
+          </span>
+        );
       case "unsaved":
-        return <span className="text-amber-600 dark:text-amber-400">未保存</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <svg className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            未保存の変更
+          </span>
+        );
       case "error":
-        return <span className="text-red-600 dark:text-red-400">エラー</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            保存エラー
+          </span>
+        );
     }
+  };
+
+  const getArticleStatusBadge = () => {
+    if (!articleStatus) return null;
+
+    if (articleStatus === "published") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-2 border-solid border-green-200 dark:border-green-800">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          公開済み
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-2 border-dashed border-amber-200 dark:border-amber-800">
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+        下書き
+      </span>
+    );
   };
 
   // Format date for preview
@@ -211,10 +269,13 @@ function NewArticleContent() {
         <Card className="mb-6">
           <CardHeader className="space-y-6">
             <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1.5">
-                <CardTitle className="text-2xl">
-                  {date ? `12月${date}日の記事を書く` : "新しい記事を書く"}
-                </CardTitle>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <CardTitle className="text-2xl">
+                    {date ? `12月${date}日の記事を書く` : "新しい記事を書く"}
+                  </CardTitle>
+                  {getArticleStatusBadge()}
+                </div>
                 <div className="flex items-center gap-2">
                   {getStatusDisplay()}
                 </div>
@@ -239,7 +300,7 @@ function NewArticleContent() {
                   size="sm"
                   onClick={handleSave}
                   disabled={isSavingDraft || !title.trim()}
-                  className="gap-2"
+                  className="gap-2 border-amber-200 text-amber-700 hover:bg-amber-50 hover:text-amber-800 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-950 dark:hover:text-amber-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
