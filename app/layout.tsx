@@ -3,6 +3,7 @@ import { Geist, Kode_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { UserMenu } from "@/components/user-menu";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -47,6 +48,9 @@ export default function RootLayout({
           <Link href="/" className="fixed top-4 left-4  z-50">
             <Logo />
           </Link>
+          <div className="fixed top-4 right-4 z-50">
+            <UserMenu />
+          </div>
           {children}
         </ThemeProvider>
       </body>

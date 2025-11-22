@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { LogoutButton } from "@/components/logout-button";
 import { CalendarCell } from "@/components/calendar/calendar-cell";
 import { createClient } from "@/lib/supabase/server";
 import { CalendarFetcher } from "@/lib/fetchers/calendar";
@@ -37,10 +36,6 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex pt-20 xl:pt-0">
-      <div className="absolute top-4 right-4 z-10">
-        <LogoutButton />
-      </div>
-
       {/* 左側: 説明エリア */}
       <div className="w-1/3 flex flex-col justify-center p-8">
         <div className="flex-1 flex items-center justify-center">
