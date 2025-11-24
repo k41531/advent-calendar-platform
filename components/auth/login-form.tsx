@@ -88,7 +88,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">ログイン</CardTitle>
           <CardDescription>
-            メールアドレスとパスワードを入力してログインしてください
+            ペンネームを入力してGoogleアカウントでログインしてください
           </CardDescription>
         </CardHeader>
         <CardContent>
