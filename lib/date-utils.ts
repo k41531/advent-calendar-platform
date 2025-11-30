@@ -7,7 +7,9 @@
  * @returns 今日の場合true
  */
 export function isToday(dateString: string): boolean {
-  const target = new Date(dateString);
+  // YYYY-MM-DD形式の文字列をローカルタイムゾーンの日付として解析
+  const [year, month, day] = dateString.split('-').map(Number);
+  const target = new Date(year, month - 1, day);
   const today = new Date();
 
   // 時刻を無視して日付のみで比較
@@ -23,7 +25,9 @@ export function isToday(dateString: string): boolean {
  * @returns 'past' | 'today' | 'future'
  */
 export function getDateState(dateString: string): 'past' | 'today' | 'future' {
-  const target = new Date(dateString);
+  // YYYY-MM-DD形式の文字列をローカルタイムゾーンの日付として解析
+  const [year, month, day] = dateString.split('-').map(Number);
+  const target = new Date(year, month - 1, day);
   const today = new Date();
 
   // 時刻を無視して日付のみで比較
@@ -41,7 +45,9 @@ export function getDateState(dateString: string): 'past' | 'today' | 'future' {
  * @returns 今日から指定日までの日数（過去の場合は負の数）
  */
 export function getDaysUntil(targetDate: string): number {
-  const target = new Date(targetDate);
+  // YYYY-MM-DD形式の文字列をローカルタイムゾーンの日付として解析
+  const [year, month, day] = targetDate.split('-').map(Number);
+  const target = new Date(year, month - 1, day);
   const today = new Date();
 
   // 時刻を無視して日付のみで比較
@@ -60,9 +66,8 @@ export function getDaysUntil(targetDate: string): number {
  * @returns M月D日形式の文字列（例: 12月25日）
  */
 export function formatJapaneseDate(dateString: string): string {
-  const date = new Date(dateString);
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
+  // YYYY-MM-DD形式の文字列をローカルタイムゾーンの日付として解析
+  const [, month, day] = dateString.split('-').map(Number);
 
   return `${month}月${day}日`;
 }

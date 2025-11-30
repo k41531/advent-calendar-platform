@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createDeclaration } from "@/lib/actions/declarations";
 import { getDateState, isToday } from "@/lib/date-utils";
@@ -30,9 +30,15 @@ export function CalendarCell({
   const [isDeclared, setIsDeclared] = useState(isUserDeclared);
   const [currentDeclarationCount, setCurrentDeclarationCount] = useState(declarationCount);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isTodayDate, setIsTodayDate] = useState(false);
+  const [dateState, setDateState] = useState<'past' | 'today' | 'future'>('future');
   const router = useRouter();
-  const isTodayDate = isToday(date);
-  const dateState = getDateState(date);
+
+  // クライアントサイドでのみ日付判定を行う（SSRとのハイドレーションミスマッチを防ぐ）
+  useEffect(() => {
+    setIsTodayDate(isToday(date));
+    setDateState(getDateState(date));
+  }, [date]);
 
   // Handle cell click - navigate to article page if published articles exist
   const handleCellClick = () => {
