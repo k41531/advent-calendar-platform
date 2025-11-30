@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AVAILABLE_REACTIONS } from "@/lib/constants/reactions";
 import {
   getUserReactionsForArticle,
@@ -66,31 +72,38 @@ export function ReactionPanel({ articleId }: ReactionPanelProps) {
   };
 
   return (
-    <div className="flex items-center gap-1">
-      {AVAILABLE_REACTIONS.map(({ emoji, label }) => {
-        const isActive = userReactions.has(emoji);
-        const isLoading = loadingEmoji === emoji;
+    <TooltipProvider delayDuration={0}>
+      <div className="flex items-center gap-1">
+        {AVAILABLE_REACTIONS.map(({ emoji, label }) => {
+          const isActive = userReactions.has(emoji);
+          const isLoading = loadingEmoji === emoji;
 
-        return (
-          <Button
-            key={emoji}
-            variant="ghost"
-            size="sm"
-            onClick={() => handleReactionClick(emoji)}
-            disabled={isPending && isLoading}
-            className={cn(
-              "text-base h-8 w-8 p-0 transition-all hover:scale-110 rounded-full",
-              isActive &&
-                "bg-primary/10 border border-primary hover:bg-primary/20",
-              isLoading && "opacity-50"
-            )}
-            title={label}
-            aria-label={`${label}でリアクションする`}
-          >
-            {emoji}
-          </Button>
-        );
-      })}
-    </div>
+          return (
+            <Tooltip key={emoji}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleReactionClick(emoji)}
+                  disabled={isPending && isLoading}
+                  className={cn(
+                    "text-base h-8 w-8 p-0 transition-all hover:scale-110 rounded-full",
+                    isActive &&
+                      "bg-primary/10 border border-primary hover:bg-primary/20",
+                    isLoading && "opacity-50"
+                  )}
+                  aria-label={`${label}でリアクションする`}
+                >
+                  {emoji}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{label}</p>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </div>
+    </TooltipProvider>
   );
 }
