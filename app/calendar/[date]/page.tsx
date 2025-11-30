@@ -47,7 +47,7 @@ export default function CalendarDatePage() {
       if (result.success && result.data) {
         const mappedArticles = result.data.map((article: any) => ({
           ...article,
-          profiles: article.profiles[0] || { pen_name: '' }
+          profiles: article.profiles || { pen_name: '' }
         }));
         setArticles(mappedArticles as ArticleWithAuthor[]);
       } else {
