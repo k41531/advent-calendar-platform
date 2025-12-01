@@ -6,6 +6,7 @@ import { createDeclaration } from "@/lib/actions/declarations";
 import { getDateState, isToday } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { DeclarationConfirmDialog } from "./declaration-confirm-dialog";
+import { ProfileSetupModal } from "@/components/profile/profile-setup-modal";
 
 interface CalendarCellProps {
   day: number;
@@ -15,6 +16,7 @@ interface CalendarCellProps {
   hasPublishedArticle?: boolean;
   declarationCount?: number;
   isUserDeclared?: boolean;
+  hasProfile?: boolean;
 }
 
 export function CalendarCell({
@@ -25,11 +27,13 @@ export function CalendarCell({
   hasPublishedArticle = false,
   declarationCount = 0,
   isUserDeclared = false,
+  hasProfile = true,
 }: CalendarCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDeclared, setIsDeclared] = useState(isUserDeclared);
   const [currentDeclarationCount, setCurrentDeclarationCount] = useState(declarationCount);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isTodayDate, setIsTodayDate] = useState(false);
   const [dateState, setDateState] = useState<'past' | 'today' | 'future'>('future');
   const router = useRouter();
@@ -170,7 +174,11 @@ export function CalendarCell({
           className="w-8 h-8 flex items-center justify-center bg-background rounded-full hover:bg-[radial-gradient(circle,hsl(var(--accent))_0%,hsl(var(--accent)/0.2)_50%,transparent_100%)] transition-all duration-200 shadow-sm relative overflow-hidden"
           onClick={(e) => {
             e.stopPropagation();
-            router.push(`/articles/new?date=${day}`);
+            if (!hasProfile) {
+              setIsProfileModalOpen(true);
+            } else {
+              router.push(`/articles/new?date=${day}`);
+            }
           }}
           aria-label="Write"
         >
@@ -184,6 +192,15 @@ export function CalendarCell({
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onConfirm={handleConfirmDeclaration}
+      />
+
+      {/* Profile setup modal */}
+      <ProfileSetupModal
+        open={isProfileModalOpen}
+        onSuccess={() => {
+          setIsProfileModalOpen(false);
+          router.push(`/articles/new?date=${day}`);
+        }}
       />
     </div>
   );

@@ -13,6 +13,13 @@ export default async function Home() {
     redirect("/auth/login");
   }
 
+  // Check if profile exists
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", user.id)
+    .single();
+
   // Fetch calendar data
   const calendarData = await CalendarFetcher.getCalendarData(2025, 12);
 
@@ -36,8 +43,8 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex pt-20 xl:pt-0">
-      {/* 左側: 説明エリア */}
-      <div className="w-1/3 flex flex-col justify-center p-8">
+        {/* 左側: 説明エリア */}
+        <div className="w-1/3 flex flex-col justify-center p-8">
         <div className="flex-1 flex items-center justify-center">
           <div className="max-w-xl w-full space-y-8">
             {/* Tips - 中央配置 */}
@@ -95,6 +102,7 @@ export default async function Home() {
                 hasPublishedArticle={cellData.hasPublishedArticle}
                 declarationCount={cellData.declarationCount}
                 isUserDeclared={cellData.isUserDeclared}
+                hasProfile={!!profile}
               />
             );
           })}

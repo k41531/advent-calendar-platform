@@ -21,7 +21,6 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [penName, setPenName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -49,11 +48,6 @@ export function LoginForm({
   };
 
   const handleGoogleLogin = async () => {
-    if (!penName.trim()) {
-      setError("ペンネームを入力してください");
-      return;
-    }
-
     const supabase = createClient();
     setIsGoogleLoading(true);
     setError(null);
@@ -67,15 +61,11 @@ export function LoginForm({
             access_type: "offline",
             prompt: "consent",
           },
-          // pen_nameをstateパラメータとして渡す（Base64エンコード）
           skipBrowserRedirect: false,
         },
       });
 
       if (error) throw error;
-
-      // pen_nameをlocalStorageに一時保存
-      localStorage.setItem("pendingPenName", penName);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "エラーが発生しました");
       setIsGoogleLoading(false);
@@ -88,29 +78,19 @@ export function LoginForm({
         <CardHeader>
           <CardTitle className="text-2xl">ログイン</CardTitle>
           <CardDescription>
-            ペンネームを入力してGoogleアカウントでログインしてください
+            Googleアカウントでログインしてください
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
             {/* Google SSO Section */}
             <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="penName">ペンネーム</Label>
-                <Input
-                  id="penName"
-                  type="text"
-                  placeholder="ペンネームを入力"
-                  value={penName}
-                  onChange={(e) => setPenName(e.target.value)}
-                />
-              </div>
               <Button
                 type="button"
                 variant="outline"
                 className="w-full"
                 onClick={handleGoogleLogin}
-                disabled={isGoogleLoading || !penName.trim()}
+                disabled={isGoogleLoading}
               >
                 {isGoogleLoading ? (
                   "Googleにリダイレクト中..."
