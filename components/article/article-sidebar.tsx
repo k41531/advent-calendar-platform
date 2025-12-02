@@ -54,7 +54,7 @@ export function ArticleSidebar({
         className={cn(
           "w-80 border-r border-border p-[var(--spacing-lg)] pt-32 pl-8 overflow-y-auto bg-background",
           // モバイル: 固定位置・左からスライドイン
-          "fixed left-0 top-0 bottom-0 z-50 transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
+          "fixed left-0 top-0 bottom-0 z-40 transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
