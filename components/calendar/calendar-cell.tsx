@@ -41,6 +41,7 @@ export function CalendarCell({
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isTodayDate, setIsTodayDate] = useState(false);
   const [dateState, setDateState] = useState<'past' | 'today' | 'future'>('future');
+  const [hoveredArticleId, setHoveredArticleId] = useState<string | null>(null);
   const router = useRouter();
 
   // クライアントサイドでのみ日付判定を行う（SSRとのハイドレーションミスマッチを防ぐ）
@@ -156,10 +157,21 @@ export function CalendarCell({
           {publishedArticles.slice(0, 3).map((article) => (
             <div
               key={article.id}
-              className="text-xs text-muted-foreground truncate"
+              className={cn(
+                "text-xs text-muted-foreground overflow-hidden whitespace-nowrap relative h-4",
+                hoveredArticleId !== article.id && "truncate"
+              )}
               title={article.title}
+              onMouseEnter={() => setHoveredArticleId(article.id)}
+              onMouseLeave={() => setHoveredArticleId(null)}
             >
-              {article.title}
+              {hoveredArticleId === article.id ? (
+                <span className="inline-block animate-marquee">
+                  {article.title}
+                </span>
+              ) : (
+                article.title
+              )}
             </div>
           ))}
           {publishedArticles.length > 3 && (
