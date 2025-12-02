@@ -19,31 +19,7 @@ export async function GET(request: Request) {
       );
     }
 
-    if (data.user) {
-      // Check if profile already exists
-      const { data: existingProfile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.user.id)
-        .single();
-
-      if (profileError && profileError.code !== "PGRST116") {
-        // PGRST116 means no rows returned, which is expected for new users
-        console.error("Error checking profile:", profileError);
-        return NextResponse.redirect(
-          `${origin}/auth/login?error=${encodeURIComponent("プロフィールの確認中にエラーが発生しました")}`
-        );
-      }
-
-      // If profile doesn't exist, create it
-      if (!existingProfile) {
-        // Get pen_name from localStorage (will be handled client-side)
-        // We need to redirect to a client-side page to get the pen_name
-        return NextResponse.redirect(`${origin}/auth/complete-profile`);
-      }
-    }
-
-    // Profile exists or was created successfully, redirect to home
+    // Redirect to home - profile check will happen on the client side
     return NextResponse.redirect(`${origin}/`);
   }
 

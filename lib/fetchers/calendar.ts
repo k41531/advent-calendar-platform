@@ -37,10 +37,10 @@ export class CalendarFetcher {
           .gte("publish_date", startDate)
           .lte("publish_date", endDate),
 
-        // Get all published articles for the month
+        // Get all published articles for the month with id and title
         supabase
           .from("articles")
-          .select("publish_date")
+          .select("id, title, publish_date")
           .eq("status", "published")
           .gte("publish_date", startDate)
           .lte("publish_date", endDate),
@@ -77,6 +77,14 @@ export class CalendarFetcher {
       publishedArticlesResult.data?.map((article) => article.publish_date) || []
     );
 
+    // Build article list map by date
+    const publishedArticlesMap = new Map<string, Array<{ id: string; title: string }>>();
+    publishedArticlesResult.data?.forEach((article) => {
+      const articles = publishedArticlesMap.get(article.publish_date) || [];
+      articles.push({ id: article.id, title: article.title });
+      publishedArticlesMap.set(article.publish_date, articles);
+    });
+
     const userDeclaredDatesSet = new Set(
       userDeclarationsResult.data?.map((declaration) => declaration.publish_date) || []
     );
@@ -101,6 +109,8 @@ export class CalendarFetcher {
       const isUserPublished = userArticleStatus === "published";
       const isUserArticleExists = isUserDraft || isUserPublished;
 
+      const publishedArticles = publishedArticlesMap.get(date);
+
       calendarData.push({
         date,
         declarationCount,
@@ -109,6 +119,7 @@ export class CalendarFetcher {
         isUserArticleExists,
         isUserDraft,
         isUserPublished,
+        publishedArticles,
       });
     }
 

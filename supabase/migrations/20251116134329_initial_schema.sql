@@ -89,7 +89,7 @@ ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
 -- Published articles are viewable by everyone
 CREATE POLICY "published articles are viewable by everyone"
   ON articles FOR SELECT
-  USING (status = 'published' AND publish_date <= CURRENT_DATE);
+  USING ((status = 'published'::text) AND (publish_date <= ((now() AT TIME ZONE 'Asia/Tokyo'::text))::date));
 
 -- Users can view their own articles (including drafts)
 CREATE POLICY "users can view own articles"

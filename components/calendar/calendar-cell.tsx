@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createDeclaration } from "@/lib/actions/declarations";
 import { getDateState, isToday } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import { DeclarationConfirmDialog } from "./declaration-confirm-dialog";
+import { ProfileSetupModal } from "@/components/profile/profile-setup-modal";
 
 interface CalendarCellProps {
   day: number;
@@ -15,6 +16,11 @@ interface CalendarCellProps {
   hasPublishedArticle?: boolean;
   declarationCount?: number;
   isUserDeclared?: boolean;
+  hasProfile?: boolean;
+  publishedArticles?: Array<{
+    id: string;
+    title: string;
+  }>;
 }
 
 export function CalendarCell({
@@ -25,14 +31,24 @@ export function CalendarCell({
   hasPublishedArticle = false,
   declarationCount = 0,
   isUserDeclared = false,
+  hasProfile = true,
+  publishedArticles = [],
 }: CalendarCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDeclared, setIsDeclared] = useState(isUserDeclared);
   const [currentDeclarationCount, setCurrentDeclarationCount] = useState(declarationCount);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isTodayDate, setIsTodayDate] = useState(false);
+  const [dateState, setDateState] = useState<'past' | 'today' | 'future'>('future');
+  const [hoveredArticleId, setHoveredArticleId] = useState<string | null>(null);
   const router = useRouter();
-  const isTodayDate = isToday(date);
-  const dateState = getDateState(date);
+
+  // クライアントサイドでのみ日付判定を行う（SSRとのハイドレーションミスマッチを防ぐ）
+  useEffect(() => {
+    setIsTodayDate(isToday(date));
+    setDateState(getDateState(date));
+  }, [date]);
 
   // Handle cell click - navigate to article page if published articles exist
   const handleCellClick = () => {
@@ -135,6 +151,37 @@ export function CalendarCell({
         </div>
       )}
 
+      {/* Article list */}
+      {publishedArticles && publishedArticles.length > 0 && (
+        <div className="mt-2 w-full space-y-1 flex-1 overflow-hidden">
+          {publishedArticles.slice(0, 3).map((article) => (
+            <div
+              key={article.id}
+              className={cn(
+                "text-xs text-muted-foreground overflow-hidden whitespace-nowrap relative h-4",
+                hoveredArticleId !== article.id && "truncate"
+              )}
+              title={article.title}
+              onMouseEnter={() => setHoveredArticleId(article.id)}
+              onMouseLeave={() => setHoveredArticleId(null)}
+            >
+              {hoveredArticleId === article.id ? (
+                <span className="inline-block animate-marquee">
+                  {article.title}
+                </span>
+              ) : (
+                article.title
+              )}
+            </div>
+          ))}
+          {publishedArticles.length > 3 && (
+            <div className="text-xs text-muted-foreground/70">
+              +{publishedArticles.length - 3}件
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Declaration count display */}
       {currentDeclarationCount > 0 && (
         <div className="mt-auto mb-1 text-xs text-muted-foreground">
@@ -164,7 +211,11 @@ export function CalendarCell({
           className="w-8 h-8 flex items-center justify-center bg-background rounded-full hover:bg-[radial-gradient(circle,hsl(var(--accent))_0%,hsl(var(--accent)/0.2)_50%,transparent_100%)] transition-all duration-200 shadow-sm relative overflow-hidden"
           onClick={(e) => {
             e.stopPropagation();
-            router.push(`/articles/new?date=${day}`);
+            if (!hasProfile) {
+              setIsProfileModalOpen(true);
+            } else {
+              router.push(`/articles/new?date=${day}`);
+            }
           }}
           aria-label="Write"
         >
@@ -178,6 +229,15 @@ export function CalendarCell({
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onConfirm={handleConfirmDeclaration}
+      />
+
+      {/* Profile setup modal */}
+      <ProfileSetupModal
+        open={isProfileModalOpen}
+        onSuccess={() => {
+          setIsProfileModalOpen(false);
+          router.push(`/articles/new?date=${day}`);
+        }}
       />
     </div>
   );
