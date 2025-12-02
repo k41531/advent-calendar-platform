@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { CalendarCell } from "@/components/calendar/calendar-cell";
+import { CalendarList } from "@/components/calendar/calendar-list";
 import { createClient } from "@/lib/supabase/server";
 import { CalendarFetcher } from "@/lib/fetchers/calendar";
 import type { CalendarCellData } from "@/lib/types/database";
@@ -34,57 +35,6 @@ function CalendarGrid({ calendarData, hasProfile }: CalendarSectionProps) {
     </div>
   );
 }
-
-function CalendarList({ calendarData, hasProfile }: CalendarSectionProps) {
-  return (
-    <div className="lg:hidden w-full flex justify-center p-8">
-      <div className="flex flex-col gap-2 w-full max-w-2xl">
-        {calendarData.slice(0, 25).map((cellData, index) => {
-          const day = index + 1;
-          return (
-            <div
-              key={day}
-              className="flex items-center justify-between p-4 bg-card rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <span className="text-2xl font-bold w-10 text-center">{day}</span>
-                <span className="text-muted-foreground">{cellData.date}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                {cellData.declarationCount > 0 && (
-                  <span className="text-sm text-muted-foreground">
-                    ✋ {cellData.declarationCount}
-                  </span>
-                )}
-                {cellData.isUserDeclared && (
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                    宣言済み
-                  </span>
-                )}
-                {cellData.isUserDraft && (
-                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                    下書き
-                  </span>
-                )}
-                {cellData.isUserPublished && (
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                    公開済み
-                  </span>
-                )}
-                {cellData.hasPublishedArticle && !cellData.isUserPublished && (
-                  <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                    記事あり
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 
 export default async function Home() {
   const supabase = await createClient();
