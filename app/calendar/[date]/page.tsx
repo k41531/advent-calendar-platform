@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArticleSidebar } from "@/components/article/article-sidebar";
 import { ArticleViewer } from "@/components/article/article-viewer";
 import { getPublishedArticlesForDate } from "@/lib/actions/articles";
+import { getReactionCountsForArticle } from "@/lib/actions/reactions";
 import { TipTapContent } from "@/lib/types/database";
 
 interface ArticleWithAuthor {
@@ -32,6 +33,7 @@ export default function CalendarDatePage() {
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(
     null
   );
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -70,6 +72,22 @@ export default function CalendarDatePage() {
       }
     }
   }, [articles, articleIdParam]);
+
+  // Fetch reaction counts when selected article changes
+  useEffect(() => {
+    async function fetchReactionCounts() {
+      if (!selectedArticleId) return;
+
+      const result = await getReactionCountsForArticle(selectedArticleId);
+      if (result.success && result.data) {
+        setReactionCounts(result.data);
+      } else {
+        setReactionCounts({});
+      }
+    }
+
+    fetchReactionCounts();
+  }, [selectedArticleId]);
 
   // Handle article selection with transition
   const handleArticleSelect = (articleId: string) => {
@@ -148,7 +166,7 @@ export default function CalendarDatePage() {
           }`}
         >
           {selectedArticle && (
-        <ArticleViewer key={selectedArticle.id} article={selectedArticle} />
+        <ArticleViewer key={selectedArticle.id} article={selectedArticle} reactionCounts={reactionCounts} />
           )}
         </div>
       </div>

@@ -13,9 +13,10 @@ interface ArticleViewerProps {
       pen_name: string;
     };
   };
+  reactionCounts: Record<string, number>;
 }
 
-export function ArticleViewer({ article }: ArticleViewerProps) {
+export function ArticleViewer({ article, reactionCounts }: ArticleViewerProps) {
   // Content should be HTML string from the editor
   const htmlContent = article.content?.content?.[0]?.content?.[0]?.text || "";
 
@@ -83,7 +84,7 @@ export function ArticleViewer({ article }: ArticleViewerProps) {
 
           {/* Reactions */}
           <div className="pt-4 border-t border-border">
-            <ReactionPanel articleId={article.id} />
+            <ReactionPanel articleId={article.id} reactionCounts={reactionCounts} />
           </div>
 
           {/* Article Footer */}

@@ -5,6 +5,39 @@ import { Reaction } from "@/lib/types/database";
 import { revalidatePath } from "next/cache";
 
 /**
+ * Get reaction counts for a specific article
+ */
+export async function getReactionCountsForArticle(
+  articleId: string
+): Promise<{ success: boolean; data?: Record<string, number>; error?: string }> {
+  const supabase = await createClient();
+
+  try {
+    // Fetch all reactions for this article
+    const { data, error } = await supabase
+      .from("reactions")
+      .select("reaction_type")
+      .eq("article_id", articleId);
+
+    if (error) {
+      console.error("Error fetching reaction counts:", error);
+      return { success: false, error: "リアクション数の取得に失敗しました" };
+    }
+
+    // Count reactions by type
+    const counts: Record<string, number> = {};
+    data?.forEach((reaction) => {
+      counts[reaction.reaction_type] = (counts[reaction.reaction_type] || 0) + 1;
+    });
+
+    return { success: true, data: counts };
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return { success: false, error: "予期しないエラーが発生しました" };
+  }
+}
+
+/**
  * Get user's reactions for a specific article
  */
 export async function getUserReactionsForArticle(

@@ -17,10 +17,12 @@ import { cn } from "@/lib/utils";
 
 interface ReactionPanelProps {
   articleId: string;
+  reactionCounts: Record<string, number>;
 }
 
-export function ReactionPanel({ articleId }: ReactionPanelProps) {
+export function ReactionPanel({ articleId, reactionCounts: initialCounts }: ReactionPanelProps) {
   const [userReactions, setUserReactions] = useState<Set<string>>(new Set());
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>(initialCounts);
   const [isPending, startTransition] = useTransition();
   const [loadingEmoji, setLoadingEmoji] = useState<string | null>(null);
 
@@ -38,6 +40,11 @@ export function ReactionPanel({ articleId }: ReactionPanelProps) {
     fetchReactions();
   }, [articleId]);
 
+  // Update reaction counts when prop changes
+  useEffect(() => {
+    setReactionCounts(initialCounts);
+  }, [initialCounts]);
+
   const handleReactionClick = (emoji: string) => {
     // Optimistic update
     const newReactions = new Set(userReactions);
@@ -49,6 +56,15 @@ export function ReactionPanel({ articleId }: ReactionPanelProps) {
       newReactions.delete(emoji);
     }
     setUserReactions(newReactions);
+
+    // Optimistically update counts
+    const newCounts = { ...reactionCounts };
+    if (isAdding) {
+      newCounts[emoji] = (newCounts[emoji] || 0) + 1;
+    } else {
+      newCounts[emoji] = Math.max((newCounts[emoji] || 0) - 1, 0);
+    }
+    setReactionCounts(newCounts);
     setLoadingEmoji(emoji);
 
     // Perform server action
@@ -58,12 +74,16 @@ export function ReactionPanel({ articleId }: ReactionPanelProps) {
       if (!result.success) {
         // Rollback on error
         const rollbackReactions = new Set(userReactions);
+        const rollbackCounts = { ...reactionCounts };
         if (isAdding) {
           rollbackReactions.delete(emoji);
+          rollbackCounts[emoji] = (rollbackCounts[emoji] || 0) - 1;
         } else {
           rollbackReactions.add(emoji);
+          rollbackCounts[emoji] = (rollbackCounts[emoji] || 0) + 1;
         }
         setUserReactions(rollbackReactions);
+        setReactionCounts(rollbackCounts);
         console.error("Reaction failed:", result.error);
       }
 
@@ -77,6 +97,7 @@ export function ReactionPanel({ articleId }: ReactionPanelProps) {
         {AVAILABLE_REACTIONS.map(({ emoji, label }) => {
           const isActive = userReactions.has(emoji);
           const isLoading = loadingEmoji === emoji;
+          const count = reactionCounts[emoji] || 0;
 
           return (
             <Tooltip key={emoji}>
@@ -87,14 +108,20 @@ export function ReactionPanel({ articleId }: ReactionPanelProps) {
                   onClick={() => handleReactionClick(emoji)}
                   disabled={isPending && isLoading}
                   className={cn(
-                    "text-base h-8 w-8 p-0 transition-all hover:scale-110 rounded-full",
+                    "text-base h-8 px-2 transition-all hover:scale-110 rounded-full",
                     isActive &&
                       "bg-primary/10 border border-primary hover:bg-primary/20",
-                    isLoading && "opacity-50"
+                    isLoading && "opacity-50",
+                    count > 0 ? "min-w-12" : "w-8 p-0"
                   )}
                   aria-label={`${label}でリアクションする`}
                 >
-                  {emoji}
+                  <span className="flex items-center gap-1">
+                    {emoji}
+                    {count > 0 && (
+                      <span className="text-xs font-medium">{count}</span>
+                    )}
+                  </span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
