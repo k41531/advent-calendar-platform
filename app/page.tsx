@@ -5,20 +5,30 @@ import { CalendarFetcher } from "@/lib/fetchers/calendar";
 
 export default async function Home() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  
+  // Debug mode: Skip authentication check if DEBUG_DISABLE_AUTH is set to "true" or "1"
+  const isDebugMode = process.env.DEBUG_DISABLE_AUTH === "true" || process.env.DEBUG_DISABLE_AUTH === "1";
 
-  if (!user) {
-    redirect("/auth/login");
+  let profile = null;
+
+  if (!isDebugMode) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      redirect("/auth/login");
+    }
+
+    // Check if profile exists
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+    
+    profile = profileData;
   }
-
-  // Check if profile exists
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", user.id)
-    .single();
 
   // Fetch calendar data
   const calendarData = await CalendarFetcher.getCalendarData(2025, 12);
