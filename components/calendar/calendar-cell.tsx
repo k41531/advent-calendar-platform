@@ -17,6 +17,10 @@ interface CalendarCellProps {
   declarationCount?: number;
   isUserDeclared?: boolean;
   hasProfile?: boolean;
+  publishedArticles?: Array<{
+    id: string;
+    title: string;
+  }>;
 }
 
 export function CalendarCell({
@@ -28,6 +32,7 @@ export function CalendarCell({
   declarationCount = 0,
   isUserDeclared = false,
   hasProfile = true,
+  publishedArticles = [],
 }: CalendarCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDeclared, setIsDeclared] = useState(isUserDeclared);
@@ -36,6 +41,7 @@ export function CalendarCell({
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isTodayDate, setIsTodayDate] = useState(false);
   const [dateState, setDateState] = useState<'past' | 'today' | 'future'>('future');
+  const [hoveredArticleId, setHoveredArticleId] = useState<string | null>(null);
   const router = useRouter();
 
   // クライアントサイドでのみ日付判定を行う（SSRとのハイドレーションミスマッチを防ぐ）
@@ -141,6 +147,37 @@ export function CalendarCell({
           )}
           {isUserDraft && (
             <span className="text-xs text-amber-600 dark:text-amber-400">📝</span>
+          )}
+        </div>
+      )}
+
+      {/* Article list */}
+      {publishedArticles && publishedArticles.length > 0 && (
+        <div className="mt-2 w-full space-y-1 flex-1 overflow-hidden">
+          {publishedArticles.slice(0, 3).map((article) => (
+            <div
+              key={article.id}
+              className={cn(
+                "text-xs text-muted-foreground overflow-hidden whitespace-nowrap relative h-4",
+                hoveredArticleId !== article.id && "truncate"
+              )}
+              title={article.title}
+              onMouseEnter={() => setHoveredArticleId(article.id)}
+              onMouseLeave={() => setHoveredArticleId(null)}
+            >
+              {hoveredArticleId === article.id ? (
+                <span className="inline-block animate-marquee">
+                  {article.title}
+                </span>
+              ) : (
+                article.title
+              )}
+            </div>
+          ))}
+          {publishedArticles.length > 3 && (
+            <div className="text-xs text-muted-foreground/70">
+              +{publishedArticles.length - 3}件
+            </div>
           )}
         </div>
       )}

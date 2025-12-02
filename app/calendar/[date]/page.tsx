@@ -37,6 +37,7 @@ export default function CalendarDatePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Fetch articles for the date
   useEffect(() => {
@@ -151,14 +152,41 @@ export default function CalendarDatePage() {
   return (
     <div className="h-screen flex flex-col bg-background pt-20 xl:pt-0">
       {/* Main Content: Sidebar + Article Viewer */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {articles.length > 1 && (
-          <ArticleSidebar
-        articles={articles}
-        selectedArticleId={selectedArticleId || ""}
-        onArticleSelect={handleArticleSelect}
-        date={date}
-          />
+          <>
+            {/* モバイル用トグルボタン */}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="fixed left-4 bottom-4 z-30 md:hidden bg-accent text-accent-foreground rounded-full p-4 shadow-lg hover:bg-accent/90 transition-colors duration-[var(--transition-fast)]"
+              aria-label="記事一覧を表示"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+
+            <ArticleSidebar
+              articles={articles}
+              selectedArticleId={selectedArticleId || ""}
+              onArticleSelect={handleArticleSelect}
+              date={date}
+              isOpen={isSidebarOpen}
+              onClose={() => setIsSidebarOpen(false)}
+            />
+          </>
         )}
         <div
           className={`flex-1 overflow-y-auto transition-opacity duration-300 ease-in-out ${
