@@ -26,6 +26,7 @@ function CalendarGrid({ calendarData, hasProfile }: CalendarSectionProps) {
               declarationCount={cellData.declarationCount}
               isUserDeclared={cellData.isUserDeclared}
               hasProfile={hasProfile}
+              publishedArticles={cellData.publishedArticles}
             />
           );
         })}

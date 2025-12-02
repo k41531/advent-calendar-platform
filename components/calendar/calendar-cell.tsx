@@ -17,6 +17,10 @@ interface CalendarCellProps {
   declarationCount?: number;
   isUserDeclared?: boolean;
   hasProfile?: boolean;
+  publishedArticles?: Array<{
+    id: string;
+    title: string;
+  }>;
 }
 
 export function CalendarCell({
@@ -28,6 +32,7 @@ export function CalendarCell({
   declarationCount = 0,
   isUserDeclared = false,
   hasProfile = true,
+  publishedArticles = [],
 }: CalendarCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDeclared, setIsDeclared] = useState(isUserDeclared);
@@ -141,6 +146,26 @@ export function CalendarCell({
           )}
           {isUserDraft && (
             <span className="text-xs text-amber-600 dark:text-amber-400">📝</span>
+          )}
+        </div>
+      )}
+
+      {/* Article list */}
+      {publishedArticles && publishedArticles.length > 0 && (
+        <div className="mt-2 w-full space-y-1 flex-1 overflow-hidden">
+          {publishedArticles.slice(0, 3).map((article) => (
+            <div
+              key={article.id}
+              className="text-xs text-muted-foreground truncate"
+              title={article.title}
+            >
+              {article.title}
+            </div>
+          ))}
+          {publishedArticles.length > 3 && (
+            <div className="text-xs text-muted-foreground/70">
+              +{publishedArticles.length - 3}件
+            </div>
           )}
         </div>
       )}

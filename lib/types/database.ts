@@ -122,4 +122,8 @@ export interface CalendarCellData {
   isUserArticleExists: boolean; // 自分の記事があるか (下書き or 公開済み)
   isUserDraft: boolean; // 自分の下書きがあるか
   isUserPublished: boolean; // 自分が公開済みか
+  publishedArticles?: Array<{
+    id: string;
+    title: string;
+  }>; // 公開記事のリスト
 }
