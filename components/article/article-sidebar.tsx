@@ -13,6 +13,8 @@ interface ArticleSidebarProps {
   selectedArticleId: string;
   onArticleSelect: (articleId: string) => void;
   date: string;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export function ArticleSidebar({
@@ -20,6 +22,8 @@ export function ArticleSidebar({
   selectedArticleId,
   onArticleSelect,
   date,
+  isOpen = true,
+  onClose,
 }: ArticleSidebarProps) {
   // Format date for display (YYYY-MM-DD -> M月D日)
   const formatDate = (dateStr: string) => {
@@ -27,8 +31,33 @@ export function ArticleSidebar({
     return `${parseInt(month)}月${parseInt(day)}日`;
   };
 
+  const handleArticleClick = (articleId: string) => {
+    onArticleSelect(articleId);
+    // モバイルで記事を選択したらサイドバーを閉じる
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="w-80 border-r border-border p-[var(--spacing-lg)] pt-32 pl-8 overflow-y-auto">
+    <>
+      {/* モバイル用オーバーレイ */}
+      {isOpen && onClose && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* サイドバー本体 */}
+      <div
+        className={cn(
+          "w-80 border-r border-border p-[var(--spacing-lg)] pt-32 pl-8 overflow-y-auto bg-background",
+          // モバイル: 固定位置・左からスライドイン
+          "fixed left-0 top-0 bottom-0 z-50 transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
       <div className="mb-[var(--spacing-xl)]">
         <h2 className="text-lg font-bold text-foreground">
           {formatDate(date)}の記事
@@ -42,7 +71,7 @@ export function ArticleSidebar({
         {articles.map((article) => (
           <button
             key={article.id}
-            onClick={() => onArticleSelect(article.id)}
+            onClick={() => handleArticleClick(article.id)}
             className={cn(
               "w-full text-left p-[var(--spacing-md)] rounded-[var(--radius-lg)] transition-all duration-[var(--transition-base)]",
               "hover:bg-card hover:shadow-sm",
@@ -80,5 +109,6 @@ export function ArticleSidebar({
         ))}
       </div>
     </div>
+    </>
   );
 }
