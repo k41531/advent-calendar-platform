@@ -55,13 +55,23 @@ export class PickupFetcher {
     }
 
     // データ構造を整形
-    const articles = data.map((article) => ({
-      id: article.id,
-      title: article.title,
-      publish_date: article.publish_date,
-      pen_name: (article.profiles as { pen_name: string })?.pen_name || "匿名",
-      excerpt: getArticleExcerpt(article.content as TipTapContent, 80),
-    }));
+    const articles = data.map((article) => {
+      const profiles = article.profiles as
+        | { pen_name: string }
+        | { pen_name: string }[]
+        | null;
+      const penName = Array.isArray(profiles)
+        ? profiles[0]?.pen_name
+        : profiles?.pen_name;
+
+      return {
+        id: article.id,
+        title: article.title,
+        publish_date: article.publish_date,
+        pen_name: penName || "匿名",
+        excerpt: getArticleExcerpt(article.content as TipTapContent, 80),
+      };
+    });
 
     // Fisher-Yatesアルゴリズムでランダムにシャッフル
     const shuffled = [...articles];
