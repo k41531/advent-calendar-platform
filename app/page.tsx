@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CalendarCell } from "@/components/calendar/calendar-cell";
 import { CalendarList } from "@/components/calendar/calendar-list";
+import { PickupArticles } from "@/components/pickup/pickup-articles";
 import { createClient } from "@/lib/supabase/server";
 import { CalendarFetcher } from "@/lib/fetchers/calendar";
 import type { CalendarCellData } from "@/lib/types/database";
@@ -87,18 +88,14 @@ export default async function Home() {
   return (
     <main className="min-h-screen flex pt-20 xl:pt-0">
         {/* 左側: 説明エリア */}
-        <div className="hidden w-1/3 lg:flex flex-col justify-center p-8">
+        <div className="hidden w-1/3 lg:flex flex-col justify-center p-8 space-y-6">
         <div className="hidden flex-1 lg:flex items-center justify-center">
           <div className="max-w-xl w-full space-y-8">
-            {/* Tips - 中央配置 */}
-            <div className="text-center py-8">
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                {randomTip}
-              </p>
-            </div>
+            {/* ピックアップ記事 */}
+            <PickupArticles />
 
             {/* クリスマスまでのカウントダウン - 控えめ */}
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-right text-sm text-muted-foreground">
               🎄 クリスマスまであと {daysUntilChristmas} 日
             </div>
           </div>
