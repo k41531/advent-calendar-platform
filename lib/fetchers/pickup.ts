@@ -41,7 +41,7 @@ export class PickupFetcher {
       )
       .eq("status", "published")
       .lte("publish_date", today)
-      .neq("profiles.pen_name", "管理者")
+      .neq("profiles.role", "admin") // 管理者の記事を除外
       .order("created_at", { ascending: false })
       .limit(fetchLimit);
 
