@@ -7,6 +7,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
+import { Markdown } from "tiptap-markdown";
 import {
   Bold,
   Italic,
@@ -150,6 +151,10 @@ export function ArticleEditor({
         HTMLAttributes: {
           class: "max-w-full h-auto rounded-lg",
         },
+      }),
+      Markdown.configure({
+        transformPastedText: true,
+        transformCopiedText: true,
       }),
     ],
     content,
