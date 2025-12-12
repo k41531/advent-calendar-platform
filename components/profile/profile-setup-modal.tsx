@@ -18,12 +18,14 @@ interface ProfileSetupModalProps {
   open: boolean;
   userId?: string;
   onSuccess: () => void;
+  onCancel?: () => void;
 }
 
 export function ProfileSetupModal({
   open,
   userId: providedUserId,
   onSuccess,
+  onCancel,
 }: ProfileSetupModalProps) {
   const [penName, setPenName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -89,12 +91,8 @@ export function ProfileSetupModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent
-        className="sm:max-w-[425px]"
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
+    <Dialog open={open} onOpenChange={(newOpen) => !newOpen && onCancel?.()}>
+      <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>プロフィールを設定してください</DialogTitle>

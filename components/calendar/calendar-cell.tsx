@@ -238,6 +238,9 @@ export function CalendarCell({
           setIsProfileModalOpen(false);
           router.push(`/articles/new?date=${day}`);
         }}
+        onCancel={() => {
+          setIsProfileModalOpen(false);
+        }}
       />
     </div>
   );
