@@ -3,9 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -24,6 +26,30 @@ export function UserMenu() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    async function checkAdminRole() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      setIsAdmin(profile?.role === "admin");
+    }
+
+    checkAdminRole();
+  }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -57,6 +83,15 @@ export function UserMenu() {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="block px-4 py-2 text-sm hover:bg-accent transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              管理者画面
+            </Link>
+          )}
           <button
             onClick={handleLogout}
             className="w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors"
